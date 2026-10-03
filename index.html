@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智观3D · 学科交互模型库</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧊</text></svg>">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="lib-header">
+  <div class="logo">
+    <div class="cube">🧊</div>
+    <div>
+      <h1>智观3D</h1>
+      <small>学科交互模型库 · 无需注册 · 本地运行</small>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="搜索模型:肱骨 / 颅 / 地球 / 太阳系 / 苯 …">
+  </div>
+  <div class="header-note">拖拽 .glb / .obj 到查看器可导入自己的模型</div>
+</header>
+
+<main class="lib-main">
+  <section class="hero">
+    <h2>把抽象的知识,变成可以转着看、点着学的三维模型</h2>
+    <p>为医学生打造的系统解剖学骨学模型库(基于真实人体 CT 重建的开源数据,每一块骨都可单独拆开、点击、标注考点),
+       并扩展到地理(点击国家)、天文(太阳系)、化学(分子结构)、生物(细胞)等学科。
+       所有模型支持鼠标全方位旋转、缩放;点击任意结构即可查看学名、解释与作用,并可向 AI 继续深入提问。</p>
+    <div class="tags">
+      <span class="tag">🦴 系统解剖学 · 骨学</span>
+      <span class="tag">🌍 地理 · 世界各国</span>
+      <span class="tag">🪐 天文 · 太阳系</span>
+      <span class="tag">⚗️ 化学 · 分子结构</span>
+      <span class="tag">🔬 生物 · 细胞</span>
+      <span class="tag">🤖 AI 深入问答</span>
+      <span class="tag">📝 自测模式</span>
+    </div>
+  </section>
+
+  <div class="cat-row" id="catRow"></div>
+  <div id="modelList"></div>
+</main>
+
+<footer class="lib-footer">
+  <p><b>模型数据来源与许可:</b>人体骨骼模型来自 BodyParts3D / Anatomography(DBCLS),按 CC BY-SA 2.1 JP 许可使用,仅用于教学演示,不构成医学建议;
+     地图边界来自 Natural Earth / world-atlas(公有领域);国家资料为公开常识性信息整理。</p>
+  <p><b>使用说明:</b>本应用完全在本地浏览器运行,不上传任何数据、无需注册。AI 问答默认使用内置知识库;如需联网大模型深度问答,请在查看器右上角「AI」面板的设置中填入你自己的 API Key(支持智谱、DeepSeek、OpenAI 等兼容接口),密钥仅保存在本机浏览器中。</p>
+</footer>
+
+<script src="js/catalog.js"></script>
+<script>
+(function () {
+  const row = document.getElementById('catRow');
+  const list = document.getElementById('modelList');
+  const search = document.getElementById('search');
+  const cats = [
+    { id: 'all', name: '全部' },
+    { id: 'medical', name: '🩺 医学 · 系统解剖学' },
+    { id: 'geo', name: '🌍 地理' },
+    { id: 'astro', name: '🪐 天文' },
+    { id: 'chem', name: '⚗️ 化学' },
+    { id: 'bio', name: '🔬 生物' }
+  ];
+  let curCat = 'all', curKw = '';
+
+  cats.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'cat-chip' + (c.id === 'all' ? ' active' : '');
+    b.textContent = c.name;
+    b.onclick = () => {
+      curCat = c.id;
+      row.querySelectorAll('.cat-chip').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      render();
+    };
+    row.appendChild(b);
+  });
+  search.addEventListener('input', () => { curKw = search.value.trim().toLowerCase(); render(); });
+
+  function render() {
+    list.innerHTML = '';
+    let shown = 0;
+    // 分组显示
+    const groups = [];
+    CATALOG.forEach(m => {
+      if (m.type === 'molecule-list') return;   // 分子集展开为单独卡片,汇总卡不显示
+      if (curCat !== 'all' && m.cat !== curCat) return;
+      if (curKw && !((m.title + ' ' + (m.en || '') + ' ' + (m.desc || '') + ' ' + (m.keywords || '')).toLowerCase().includes(curKw))) return;
+      let g = groups.find(x => x.name === (m.groupName || '其他'));
+      if (!g) { g = { name: m.groupName || '其他', items: [] }; groups.push(g); }
+      g.items.push(m);
+      shown++;
+    });
+    if (!shown) {
+      list.innerHTML = '<p style="color:var(--txt-dim);padding:40px 0;text-align:center">没有找到匹配的模型,换个关键词试试?</p>';
+      return;
+    }
+    groups.forEach(g => {
+      const t = document.createElement('div');
+      t.className = 'group-title';
+      t.innerHTML = `${g.name} <span class="cnt">${g.items.length} 个模型</span>`;
+      list.appendChild(t);
+      const grid = document.createElement('div');
+      grid.className = 'card-grid';
+      g.items.forEach(m => grid.appendChild(card(m)));
+      list.appendChild(grid);
+    });
+  }
+
+  function card(m) {
+    const d = document.createElement('div');
+    d.className = 'model-card';
+    d.innerHTML = `
+      <div class="icon">${m.icon || '📦'}</div>
+      <h3>${m.title}</h3>
+      <div class="desc">${m.desc || ''}</div>
+      <div class="meta">
+        ${(m.tags || []).map(t => `<span>${t}</span>`).join('')}
+      </div>
+      <div class="open-hint">打开模型 →</div>`;
+    d.onclick = () => { location.href = 'viewer.html?model=' + encodeURIComponent(m.id); };
+    return d;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

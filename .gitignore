@@ -1,0 +1,10 @@
+# 原始下载数据(143MB,超过 GitHub 单文件限制;网页运行不需要,可用 tools/prepare_models.py 重新生成)
+tools/downloads/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 本地缓存
+*.log

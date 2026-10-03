@@ -1,0 +1,870 @@
+{
+ "base": "models/anatomy/",
+ "source": "BodyParts3D, (c) DBCLS, CC BY-SA 2.1 JP",
+ "bones": {
+  "frontal-bone": {
+   "file": "frontal-bone.glb",
+   "title": "额骨",
+   "en": "frontal bone",
+   "tris": 14510,
+   "size": [
+    125.2946,
+    70.746,
+    109.05
+   ]
+  },
+  "parietal-bone": {
+   "file": "parietal-bone.glb",
+   "title": "顶骨",
+   "en": "parietal bone",
+   "tris": 26212,
+   "size": [
+    151.045,
+    146.6382,
+    118.47
+   ]
+  },
+  "temporal-bone": {
+   "file": "temporal-bone.glb",
+   "title": "颞骨",
+   "en": "temporal bone",
+   "tris": 9864,
+   "size": [
+    146.5747,
+    98.7234,
+    76.05
+   ]
+  },
+  "occipital-bone": {
+   "file": "occipital-bone.glb",
+   "title": "枕骨",
+   "en": "occipital bone",
+   "tris": 12450,
+   "size": [
+    122.6665,
+    118.96,
+    106.74
+   ]
+  },
+  "sphenoid-bone": {
+   "file": "sphenoid-bone.glb",
+   "title": "蝶骨",
+   "en": "sphenoid bone",
+   "tris": 8154,
+   "size": [
+    111.3527,
+    54.6063,
+    69.55
+   ]
+  },
+  "ethmoid-bone": {
+   "file": "ethmoid-bone.glb",
+   "title": "筛骨",
+   "en": "ethmoid",
+   "tris": 22070,
+   "size": [
+    41.7113,
+    47.384,
+    35.06
+   ]
+  },
+  "vomer": {
+   "file": "vomer.glb",
+   "title": "犁骨",
+   "en": "vomer",
+   "tris": 7218,
+   "size": [
+    10.9223,
+    55.06,
+    43.52
+   ]
+  },
+  "maxilla": {
+   "file": "maxilla.glb",
+   "title": "上颌骨",
+   "en": "maxilla",
+   "tris": 10522,
+   "size": [
+    93.4059,
+    57.215,
+    69.36
+   ]
+  },
+  "mandible": {
+   "file": "mandible.glb",
+   "title": "下颌骨",
+   "en": "mandible",
+   "tris": 5576,
+   "size": [
+    106.4,
+    83.9783,
+    84.47
+   ]
+  },
+  "zygomatic-bone": {
+   "file": "zygomatic-bone.glb",
+   "title": "颧骨",
+   "en": "zygomatic bone",
+   "tris": 2990,
+   "size": [
+    127.8223,
+    39.71,
+    56.12
+   ]
+  },
+  "nasal-bone": {
+   "file": "nasal-bone.glb",
+   "title": "鼻骨",
+   "en": "nasal bone",
+   "tris": 854,
+   "size": [
+    16.3486,
+    21.543,
+    32.32
+   ]
+  },
+  "lacrimal-bone": {
+   "file": "lacrimal-bone.glb",
+   "title": "泪骨",
+   "en": "lacrimal bone",
+   "tris": 1342,
+   "size": [
+    35.973,
+    14.746,
+    29.48
+   ]
+  },
+  "palatine-bone": {
+   "file": "palatine-bone.glb",
+   "title": "腭骨",
+   "en": "palatine bone",
+   "tris": 3674,
+   "size": [
+    56.2688,
+    46.649,
+    43.24
+   ]
+  },
+  "inferior-nasal-concha": {
+   "file": "inferior-nasal-concha.glb",
+   "title": "下鼻甲",
+   "en": "inferior nasal concha",
+   "tris": 1452,
+   "size": [
+    32.472,
+    39.519,
+    19.96
+   ]
+  },
+  "hyoid-bone": {
+   "file": "hyoid-bone.glb",
+   "title": "舌骨",
+   "en": "hyoid bone",
+   "tris": 1196,
+   "size": [
+    37.8067,
+    34.5813,
+    18.49
+   ]
+  },
+  "atlas": {
+   "file": "atlas.glb",
+   "title": "寰椎C1",
+   "en": "atlas",
+   "tris": 2094,
+   "size": [
+    81.5953,
+    47.0484,
+    19.22
+   ]
+  },
+  "axis": {
+   "file": "axis.glb",
+   "title": "枢椎C2",
+   "en": "axis",
+   "tris": 2288,
+   "size": [
+    50.5358,
+    49.8682,
+    45.18
+   ]
+  },
+  "cervical-vertebra": {
+   "file": "cervical-vertebra.glb",
+   "title": "普通颈椎C4",
+   "en": "fourth cervical vertebra",
+   "tris": 2410,
+   "size": [
+    54.1309,
+    48.4145,
+    27.54
+   ]
+  },
+  "thoracic-vertebra": {
+   "file": "thoracic-vertebra.glb",
+   "title": "胸椎T6",
+   "en": "sixth thoracic vertebra",
+   "tris": 2248,
+   "size": [
+    71.4566,
+    64.0285,
+    59.7
+   ]
+  },
+  "lumbar-vertebra": {
+   "file": "lumbar-vertebra.glb",
+   "title": "腰椎L2",
+   "en": "second lumbar vertebra",
+   "tris": 3214,
+   "size": [
+    79.4117,
+    80.3712,
+    47.444
+   ]
+  },
+  "sacrum": {
+   "file": "sacrum.glb",
+   "title": "骶骨",
+   "en": "sacrum",
+   "tris": 9922,
+   "size": [
+    117.7941,
+    88.6501,
+    144.363
+   ]
+  },
+  "rib": {
+   "file": "rib.glb",
+   "title": "典型肋骨",
+   "en": "sixth rib",
+   "tris": 20510,
+   "size": [
+    267.403,
+    189.8636,
+    128.93
+   ]
+  },
+  "clavicle": {
+   "file": "clavicle.glb",
+   "title": "锁骨",
+   "en": "clavicle",
+   "tris": 2322,
+   "size": [
+    289.219,
+    92.6905,
+    46.91
+   ]
+  },
+  "scapula": {
+   "file": "scapula.glb",
+   "title": "肩胛骨",
+   "en": "scapula",
+   "tris": 54278,
+   "size": [
+    332.928,
+    107.9387,
+    165.91
+   ]
+  },
+  "humerus": {
+   "file": "humerus.glb",
+   "title": "肱骨",
+   "en": "humerus",
+   "tris": 7628,
+   "size": [
+    481.601,
+    49.1899,
+    307.34
+   ]
+  },
+  "radius": {
+   "file": "radius.glb",
+   "title": "桡骨",
+   "en": "radius",
+   "tris": 1304,
+   "size": [
+    558.678,
+    66.1494,
+    229.215
+   ]
+  },
+  "ulna": {
+   "file": "ulna.glb",
+   "title": "尺骨",
+   "en": "ulna",
+   "tris": 1658,
+   "size": [
+    494.299,
+    78.9417,
+    247.454
+   ]
+  },
+  "scaphoid": {
+   "file": "scaphoid.glb",
+   "title": "手舟骨",
+   "en": "scaphoid",
+   "tris": 634,
+   "size": [
+    546.037,
+    15.136,
+    15.57
+   ]
+  },
+  "lunate": {
+   "file": "lunate.glb",
+   "title": "月骨",
+   "en": "lunate",
+   "tris": 646,
+   "size": [
+    505.607,
+    16.503,
+    12.666
+   ]
+  },
+  "pisiform": {
+   "file": "pisiform.glb",
+   "title": "豌豆骨",
+   "en": "pisiform",
+   "tris": 400,
+   "size": [
+    480.25,
+    10.627,
+    11.65
+   ]
+  },
+  "trapezium": {
+   "file": "trapezium.glb",
+   "title": "大多角骨",
+   "en": "trapezium",
+   "tris": 790,
+   "size": [
+    563.517,
+    16.866,
+    20.046
+   ]
+  },
+  "capitate": {
+   "file": "capitate.glb",
+   "title": "头状骨",
+   "en": "capitate",
+   "tris": 830,
+   "size": [
+    528.77,
+    16.958,
+    22.433
+   ]
+  },
+  "hamate": {
+   "file": "hamate.glb",
+   "title": "钩骨",
+   "en": "hamate",
+   "tris": 974,
+   "size": [
+    503.498,
+    22.66,
+    19.397
+   ]
+  },
+  "hip-bone": {
+   "file": "hip-bone.glb",
+   "title": "髋骨",
+   "en": "hip bone",
+   "tris": 4706,
+   "size": [
+    289.626,
+    137.9762,
+    206.139
+   ]
+  },
+  "femur": {
+   "file": "femur.glb",
+   "title": "股骨",
+   "en": "femur",
+   "tris": 6306,
+   "size": [
+    300.371,
+    62.7938,
+    466.196
+   ]
+  },
+  "patella": {
+   "file": "patella.glb",
+   "title": "髌骨",
+   "en": "patella",
+   "tris": 616,
+   "size": [
+    204.512,
+    21.85,
+    39.31
+   ]
+  },
+  "tibia": {
+   "file": "tibia.glb",
+   "title": "胫骨",
+   "en": "tibia",
+   "tris": 3356,
+   "size": [
+    218.808,
+    62.8529,
+    380.0153
+   ]
+  },
+  "fibula": {
+   "file": "fibula.glb",
+   "title": "腓骨",
+   "en": "fibula",
+   "tris": 2266,
+   "size": [
+    240.273,
+    29.6814,
+    384.4299
+   ]
+  },
+  "talus": {
+   "file": "talus.glb",
+   "title": "距骨",
+   "en": "talus",
+   "tris": 2736,
+   "size": [
+    180.292,
+    56.923,
+    34.4165
+   ]
+  },
+  "calcaneus": {
+   "file": "calcaneus.glb",
+   "title": "跟骨",
+   "en": "calcaneus",
+   "tris": 2550,
+   "size": [
+    201.549,
+    70.1434,
+    49.4195
+   ]
+  }
+ },
+ "groups": {
+  "skull": {
+   "title": "颅",
+   "file": "skull.glb",
+   "parts": [
+    {
+     "id": "frontal-bone",
+     "name": "额骨",
+     "kb": "frontal-bone"
+    },
+    {
+     "id": "parietal-bone",
+     "name": "顶骨",
+     "kb": "parietal-bone"
+    },
+    {
+     "id": "temporal-bone",
+     "name": "颞骨",
+     "kb": "temporal-bone"
+    },
+    {
+     "id": "occipital-bone",
+     "name": "枕骨",
+     "kb": "occipital-bone"
+    },
+    {
+     "id": "sphenoid-bone",
+     "name": "蝶骨",
+     "kb": "sphenoid-bone"
+    },
+    {
+     "id": "ethmoid-bone",
+     "name": "筛骨",
+     "kb": "ethmoid-bone"
+    },
+    {
+     "id": "vomer",
+     "name": "犁骨",
+     "kb": "vomer"
+    },
+    {
+     "id": "maxilla",
+     "name": "上颌骨",
+     "kb": "maxilla"
+    },
+    {
+     "id": "zygomatic-bone",
+     "name": "颧骨",
+     "kb": "zygomatic-bone"
+    },
+    {
+     "id": "nasal-bone",
+     "name": "鼻骨",
+     "kb": "nasal-bone"
+    },
+    {
+     "id": "lacrimal-bone",
+     "name": "泪骨",
+     "kb": "lacrimal-bone"
+    },
+    {
+     "id": "palatine-bone",
+     "name": "腭骨",
+     "kb": "palatine-bone"
+    },
+    {
+     "id": "inferior-nasal-concha",
+     "name": "下鼻甲",
+     "kb": "inferior-nasal-concha"
+    },
+    {
+     "id": "mandible",
+     "name": "下颌骨",
+     "kb": "mandible"
+    }
+   ]
+  },
+  "skeleton": {
+   "title": "全身骨骼",
+   "file": "skeleton.glb",
+   "parts": [
+    {
+     "id": "frontal-bone",
+     "name": "额骨",
+     "kb": "frontal-bone"
+    },
+    {
+     "id": "parietal-bone",
+     "name": "顶骨",
+     "kb": "parietal-bone"
+    },
+    {
+     "id": "temporal-bone",
+     "name": "颞骨",
+     "kb": "temporal-bone"
+    },
+    {
+     "id": "occipital-bone",
+     "name": "枕骨",
+     "kb": "occipital-bone"
+    },
+    {
+     "id": "sphenoid-bone",
+     "name": "蝶骨",
+     "kb": "sphenoid-bone"
+    },
+    {
+     "id": "ethmoid-bone",
+     "name": "筛骨",
+     "kb": "ethmoid-bone"
+    },
+    {
+     "id": "vomer",
+     "name": "犁骨",
+     "kb": "vomer"
+    },
+    {
+     "id": "maxilla",
+     "name": "上颌骨",
+     "kb": "maxilla"
+    },
+    {
+     "id": "zygomatic-bone",
+     "name": "颧骨",
+     "kb": "zygomatic-bone"
+    },
+    {
+     "id": "nasal-bone",
+     "name": "鼻骨",
+     "kb": "nasal-bone"
+    },
+    {
+     "id": "lacrimal-bone",
+     "name": "泪骨",
+     "kb": "lacrimal-bone"
+    },
+    {
+     "id": "palatine-bone",
+     "name": "腭骨",
+     "kb": "palatine-bone"
+    },
+    {
+     "id": "inferior-nasal-concha",
+     "name": "下鼻甲",
+     "kb": "inferior-nasal-concha"
+    },
+    {
+     "id": "mandible",
+     "name": "下颌骨",
+     "kb": "mandible"
+    },
+    {
+     "id": "hyoid-bone",
+     "name": "舌骨",
+     "kb": "hyoid-bone"
+    },
+    {
+     "id": "atlas",
+     "name": "寰椎C1",
+     "kb": "atlas"
+    },
+    {
+     "id": "axis",
+     "name": "枢椎C2",
+     "kb": "axis"
+    },
+    {
+     "id": "sk-third-cervical-vertebra",
+     "name": "第3颈椎",
+     "kb": "cervical-vertebra"
+    },
+    {
+     "id": "sk-fifth-cervical-vertebra",
+     "name": "第5颈椎",
+     "kb": "cervical-vertebra"
+    },
+    {
+     "id": "sk-sixth-cervical-vertebra",
+     "name": "第6颈椎",
+     "kb": "cervical-vertebra"
+    },
+    {
+     "id": "sk-seventh-cervical-vertebra",
+     "name": "第7颈椎",
+     "kb": "cervical-vertebra"
+    },
+    {
+     "id": "sk-first-thoracic-vertebra",
+     "name": "第1胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-second-thoracic-vertebra",
+     "name": "第2胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-third-thoracic-vertebra",
+     "name": "第3胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-fourth-thoracic-vertebra",
+     "name": "第4胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-fifth-thoracic-vertebra",
+     "name": "第5胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-seventh-thoracic-vertebra",
+     "name": "第7胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-eighth-thoracic-vertebra",
+     "name": "第8胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-ninth-thoracic-vertebra",
+     "name": "第9胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-tenth-thoracic-vertebra",
+     "name": "第10胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-eleventh-thoracic-vertebra",
+     "name": "第11胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-twelfth-thoracic-vertebra",
+     "name": "第12胸椎",
+     "kb": "thoracic-vertebra"
+    },
+    {
+     "id": "sk-first-lumbar-vertebra",
+     "name": "第1腰椎",
+     "kb": "lumbar-vertebra"
+    },
+    {
+     "id": "sk-third-lumbar-vertebra",
+     "name": "第3腰椎",
+     "kb": "lumbar-vertebra"
+    },
+    {
+     "id": "sk-fourth-lumbar-vertebra",
+     "name": "第4腰椎",
+     "kb": "lumbar-vertebra"
+    },
+    {
+     "id": "sk-fifth-lumbar-vertebra",
+     "name": "第5腰椎",
+     "kb": "lumbar-vertebra"
+    },
+    {
+     "id": "sk-first-rib",
+     "name": "第1肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-second-rib",
+     "name": "第2肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-third-rib",
+     "name": "第3肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-fourth-rib",
+     "name": "第4肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-fifth-rib",
+     "name": "第5肋",
+     "kb": "rib"
+    },
+    {
+     "id": "rib",
+     "name": "第6肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-seventh-rib",
+     "name": "第7肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-eighth-rib",
+     "name": "第8肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-ninth-rib",
+     "name": "第9肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-tenth-rib",
+     "name": "第10肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-eleventh-rib",
+     "name": "第11肋",
+     "kb": "rib"
+    },
+    {
+     "id": "sk-manubrium",
+     "name": "胸骨柄",
+     "kb": "sternum"
+    },
+    {
+     "id": "sk-body-of-sternum",
+     "name": "胸骨体",
+     "kb": "sternum"
+    },
+    {
+     "id": "sk-xiphoid-process",
+     "name": "剑突",
+     "kb": "sternum"
+    },
+    {
+     "id": "clavicle",
+     "name": "锁骨",
+     "kb": "clavicle"
+    },
+    {
+     "id": "scapula",
+     "name": "肩胛骨",
+     "kb": "scapula"
+    },
+    {
+     "id": "humerus",
+     "name": "肱骨",
+     "kb": "humerus"
+    },
+    {
+     "id": "radius",
+     "name": "桡骨",
+     "kb": "radius"
+    },
+    {
+     "id": "ulna",
+     "name": "尺骨",
+     "kb": "ulna"
+    },
+    {
+     "id": "hip-bone",
+     "name": "髋骨",
+     "kb": "hip-bone"
+    },
+    {
+     "id": "femur",
+     "name": "股骨",
+     "kb": "femur"
+    },
+    {
+     "id": "patella",
+     "name": "髌骨",
+     "kb": "patella"
+    },
+    {
+     "id": "tibia",
+     "name": "胫骨",
+     "kb": "tibia"
+    },
+    {
+     "id": "fibula",
+     "name": "腓骨",
+     "kb": "fibula"
+    },
+    {
+     "id": "scaphoid",
+     "name": "手舟骨",
+     "kb": "scaphoid"
+    },
+    {
+     "id": "lunate",
+     "name": "月骨",
+     "kb": "lunate"
+    },
+    {
+     "id": "pisiform",
+     "name": "豌豆骨",
+     "kb": "pisiform"
+    },
+    {
+     "id": "trapezium",
+     "name": "大多角骨",
+     "kb": "trapezium"
+    },
+    {
+     "id": "capitate",
+     "name": "头状骨",
+     "kb": "capitate"
+    },
+    {
+     "id": "hamate",
+     "name": "钩骨",
+     "kb": "hamate"
+    },
+    {
+     "id": "talus",
+     "name": "距骨",
+     "kb": "talus"
+    },
+    {
+     "id": "calcaneus",
+     "name": "跟骨",
+     "kb": "calcaneus"
+    }
+   ]
+  }
+ }
+}

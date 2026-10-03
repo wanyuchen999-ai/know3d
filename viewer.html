@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智观3D · 查看器</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧊</text></svg>">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body class="viewer-body">
+<canvas id="c3d"></canvas>
+
+<!-- 顶部工具栏 -->
+<div class="v-toolbar">
+  <button class="back" onclick="location.href='index.html'">← 返回模型库</button>
+  <div class="v-title" id="vTitle"></div>
+  <div class="tb-group">
+    <button class="tb-btn" id="btnReset" title="回到默认视角">⟲ 重置视角</button>
+    <button class="tb-btn" id="btnSpin" title="自动旋转">🔄 自动转</button>
+    <button class="tb-btn" id="btnLabels" title="显示/隐藏标注">🏷 标注</button>
+    <button class="tb-btn" id="btnQuiz" title="考点自测">📝 自测</button>
+    <button class="tb-btn" id="btnShot" title="保存当前画面为图片">📷 截图</button>
+    <button class="tb-btn primary" id="btnAI">🤖 AI 问答</button>
+  </div>
+</div>
+
+<div class="view-preset-bar" id="viewPresets"></div>
+
+<!-- 左侧信息面板 -->
+<aside class="info-panel" id="infoPanel">
+  <div class="info-head">
+    <div class="ih-title">
+      <h2 id="infoTitle">点击模型上的结构</h2>
+      <div class="latin" id="infoLatin"></div>
+      <div class="cat-line" id="infoCat"></div>
+    </div>
+    <button class="icon-btn" id="infoClose" title="收起">✕</button>
+  </div>
+  <div class="info-body" id="infoBody">
+    <div class="info-empty">
+      <div style="font-size:34px">🖱️</div>
+      <div><b>操作方法</b><br>
+        左键拖动 = 旋转(可转任意角度,包括上下)<br>
+        滚轮 = 缩放 · 右键拖动 = 平移<br>
+        单击骨头 / 标注圆点 = 查看该结构<br>
+        双击某块骨 = 单独隔离显示(组装模型)<br>
+        下方骨块列表可控制每块骨的显示隐藏
+      </div>
+    </div>
+  </div>
+  <details class="bone-list-wrap" id="boneListWrap" style="display:none">
+    <summary>🦴 骨块列表(点击隔离 / 双击恢复全部)</summary>
+    <div class="bone-chips" id="boneChips"></div>
+  </details>
+</aside>
+
+<!-- 自测 HUD -->
+<div class="quiz-hud" id="quizHud">
+  <div class="q-main">找出:<b id="quizQ">—</b></div>
+  <div class="q-score" id="quizScore">得分 0/0</div>
+  <button class="q-next" id="quizNext">跳过 ⏭</button>
+  <button class="q-exit" id="quizExit">退出自测</button>
+</div>
+<div class="quiz-flash" id="quizFlash"></div>
+
+<!-- AI 抽屉 -->
+<div class="ai-drawer" id="aiDrawer">
+  <div class="ai-head">
+    <h3>🤖 AI 深入问答</h3>
+    <span class="mode-badge" id="aiMode">内置知识库</span>
+    <button class="icon-btn" id="aiSettingsBtn" title="AI 设置">⚙️</button>
+    <button class="icon-btn" id="aiClose" title="关闭">✕</button>
+  </div>
+  <div class="ai-msgs" id="aiMsgs"></div>
+  <div class="ai-chips" id="aiChips"></div>
+  <div class="ai-input-row">
+    <textarea id="aiInput" placeholder="针对当前模型/选中的结构提问,回车发送…"></textarea>
+    <button class="ai-send" id="aiSend">➤</button>
+  </div>
+</div>
+
+<!-- 设置弹窗 -->
+<div class="modal-mask" id="settingsModal">
+  <div class="modal">
+    <h3>⚙️ AI 设置</h3>
+    <div class="form-row">
+      <label>接口预设</label>
+      <div id="presetRow">
+        <span class="preset-chip" data-p="offline">仅用内置知识库(无需联网)</span>
+        <span class="preset-chip" data-p="zhipu">智谱 GLM</span>
+        <span class="preset-chip" data-p="deepseek">DeepSeek</span>
+        <span class="preset-chip" data-p="openai">OpenAI</span>
+        <span class="preset-chip" data-p="custom">自定义</span>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="form-row"><label>API 地址(OpenAI 兼容 /chat/completions)</label><input id="setUrl" placeholder="https://…/chat/completions"></div>
+      <div class="form-row"><label>模型名</label><input id="setModel" placeholder="glm-4-flash / deepseek-chat / …"></div>
+    </div>
+    <div class="form-row"><label>API Key(仅保存在你自己的浏览器 localStorage)</label><input id="setKey" type="password" placeholder="sk-…"></div>
+    <div class="test-line">
+      <button class="btn-ghost" id="btnTestAI">测试连接</button>
+      <span class="test-result" id="testResult"></span>
+    </div>
+    <p class="tip">· 不填写 Key 也能用:AI 面板会检索本页内置的解剖学知识库作答。<br>
+      · 智谱 glm-4-flash 有免费额度;跨域报错说明该服务商不允许浏览器直连,可换用支持 CORS 的接口。<br>
+      · 提问时会自动附上「当前模型 + 你选中的结构」的上下文,AI 答案更有针对性。</p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="setCancel">取消</button>
+      <button class="btn-main" id="setSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="hint-bar" id="hintBar">左键拖动旋转(全方位) · 滚轮缩放 · 右键平移 · 点击结构查看知识卡</div>
+<div class="drop-overlay" id="dropOverlay">松手即加载你的 .glb / .obj 模型(仅本地)</div>
+<div class="toast" id="toast"></div>
+
+<div class="loading-mask" id="loadingMask">
+  <div class="spin"></div>
+  <div class="l1" id="loadText">正在初始化…</div>
+  <div class="load-bar"><i id="loadBar"></i></div>
+  <div class="l2">首次加载后浏览器会缓存,第二次打开更快</div>
+</div>
+
+<script src="js/lib/three.min.js"></script>
+<script src="js/lib/OrbitControls.js"></script>
+<script src="js/lib/OBJLoader.js"></script>
+<script src="js/lib/GLTFLoader.js"></script>
+<script src="js/lib/topojson-client.min.js"></script>
+<script src="js/lib/d3-array.min.js"></script>
+<script src="js/lib/d3-geo.min.js"></script>
+<script src="js/catalog.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/modules/anatomy.js"></script>
+<script src="js/modules/globe.js"></script>
+<script src="js/modules/solar.js"></script>
+<script src="js/modules/molecule.js"></script>
+<script src="js/modules/cell.js"></script>
+<script src="js/modules/bone-structure.js"></script>
+<script src="js/viewer.js"></script>
+</body>
+</html>
