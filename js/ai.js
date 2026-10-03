@@ -1,6 +1,7 @@
 /* ============ AI 问答面板 ============
  * 模式1:内置知识库(离线,零配置)—— 对当前模型/结构的关键词检索 + 预设问答
  * 模式2:云端大模型(用户自己填 OpenAI 兼容接口,可选智谱/DeepSeek/OpenAI 预设)
+ * 会话:按账号(本地账号系统 auth.js)自动保存聊天记录,可历史回看/删除/导出
  */
 (function () {
   'use strict';
@@ -10,14 +11,91 @@
     openai: { url: 'https://api.openai.com/v1/chat/completions', model: 'gpt-4o-mini', label: 'OpenAI' },
     custom: { url: '', model: '', label: '自定义' }
   };
-  const LS_KEY = 'know3d_ai_cfg';
-  let cfg = { preset: 'offline', url: '', model: '', key: '' };
-  try { const s = localStorage.getItem(LS_KEY); if (s) cfg = Object.assign(cfg, JSON.parse(s)); } catch (e) { }
-
   const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  /* ---------- 账号感知的存储键 ---------- */
+  function userKey(prefix) {
+    const u = (window.Auth && Auth.current()) || 'guest';
+    return prefix + u;
+  }
+  let cfg = { preset: 'offline', url: '', model: '', key: '' };
+  function loadCfg() {
+    // 一次性迁移旧的全局配置
+    try {
+      const legacy = localStorage.getItem('know3d_ai_cfg');
+      if (legacy && !localStorage.getItem(userKey('know3d_ai_cfg_'))) {
+        localStorage.setItem(userKey('know3d_ai_cfg_'), legacy);
+      }
+    } catch (e) { }
+    try { cfg = Object.assign(cfg, JSON.parse(localStorage.getItem(userKey('know3d_ai_cfg_')) || '{}')); } catch (e) { }
+  }
+  function saveCfg() { try { localStorage.setItem(userKey('know3d_ai_cfg_'), JSON.stringify(cfg)); } catch (e) { } }
+
+  /* ---------- 聊天会话存储 ---------- */
+  let sessions = [];        // [{id,title,created,msgs:[{role,content,ts}]}]
+  let curSession = null;    // 当前会话(null = 尚未产生消息)
+  let history = [];         // 最近消息(供云端上下文)
+  let kbLib = null;
+
+  function loadSessions() {
+    try { sessions = JSON.parse(localStorage.getItem(userKey('know3d_chat_')) || '[]'); }
+    catch (e) { sessions = []; }
+  }
+  function persistSessions() {
+    try { localStorage.setItem(userKey('know3d_chat_'), JSON.stringify(sessions.slice(-40))); } catch (e) { }
+  }
+  function resetConversationUI() {
+    msgs.innerHTML = '';
+    history = [];
+    bubble('bot', '已开启新对话 ✨ 提问会自动保存到你的账号,可在 🗂 历史里回看。');
+  }
+  function newConversation(silent) {
+    if (curSession) persistSession();   // 收尾保存
+    curSession = null;
+    resetConversationUI();
+    if (!silent) Ctx && Ctx.toast && Ctx.toast('新对话已创建,旧的已自动保存');
+  }
+  function persistSession() {
+    if (!curSession || !curSession.msgs.length) return;
+    const i = sessions.findIndex(s => s.id === curSession.id);
+    if (i >= 0) sessions[i] = curSession; else sessions.push(curSession);
+    persistSessions();
+  }
+  function ensureSession(firstQ) {
+    if (curSession) return;
+    curSession = { id: 's' + Date.now(), title: (firstQ || '新对话').slice(0, 18), created: Date.now(), msgs: [] };
+  }
+  function addMsg(role, content) {
+    ensureSession(role === 'user' ? content : '');
+    curSession.msgs.push({ role, content, ts: Date.now() });
+    if (role === 'user') history.push({ role: 'user', content });
+    else history.push({ role: 'assistant', content });
+    persistSession();
+  }
+  function loadSession(id) {
+    const s = sessions.find(x => x.id === id);
+    if (!s) return;
+    if (curSession) persistSession();
+    curSession = s;
+    msgs.innerHTML = '';
+    history = [];
+    s.msgs.forEach(m => {
+      bubble(m.role === 'user' ? 'user' : 'bot', m.role === 'user' ? esc(m.content) : mdLite(m.content));
+      history.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content });
+    });
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+  function deleteSession(id) {
+    sessions = sessions.filter(s => s.id !== id);
+    persistSessions();
+    if (curSession && curSession.id === id) { curSession = null; resetConversationUI(); }
+    renderHistList();
+  }
+
+  /* ---------- 面板 UI ---------- */
   const drawer = $('aiDrawer'), msgs = $('aiMsgs'), input = $('aiInput');
-  let history = [];   // {role, content}
-  let kbLib = null;   // 可由模块注入的知识库 {entries:[{id,title,terms,text}]}
+  let histModal = null;
 
   function isCloud() { return cfg.preset !== 'offline' && cfg.url && cfg.key; }
   function refreshMode() {
@@ -29,11 +107,13 @@
   function toggle(show) {
     const s = show === undefined ? !drawer.classList.contains('show') : show;
     drawer.classList.toggle('show', s);
+    if (s && !curSession && sessions.length) {
+      loadSession(sessions[sessions.length - 1].id);   // 打开时自动恢复最近会话
+      bubble('bot', '已为你恢复上次的对话 💾');
+    }
     if (s) { renderChips(); input.focus(); }
   }
   window.AIPanel = { toggle, addKB: lib => { kbLib = lib; }, open: () => toggle(true) };
-  $('aiClose').onclick = () => toggle(false);
-  $('aiSettingsBtn').onclick = openSettings;
 
   function bubble(role, html) {
     const d = document.createElement('div');
@@ -63,13 +143,11 @@
     if (!q) return;
     input.value = '';
     bubble('user', esc(q));
-    history.push({ role: 'user', content: q });
+    addMsg('user', q);
     if (isCloud()) cloudAsk(q); else localAsk(q);
   }
   $('aiSend').onclick = send;
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
-
-  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   /* ---------- 模式1:内置知识库 ---------- */
   function localAsk(q) {
@@ -77,14 +155,12 @@
     setTimeout(() => {
       const res = searchKB(q);
       typing.innerHTML = res.html;
-      history.push({ role: 'assistant', content: res.plain });
+      addMsg('assistant', res.plain || res.html.replace(/<[^>]+>/g, ' '));
     }, 260);
   }
 
   function searchKB(q) {
-    const ctx = window.Ctx;
     const pool = [];
-    // 当前知识库优先
     if (kbLib && kbLib.entries) pool.push(...kbLib.entries);
     const kws = q.toLowerCase().replace(/[?？,。、!！\s]+/g, ' ').split(' ').filter(w => w.length > 1);
     const scored = pool.map(e => {
@@ -114,9 +190,9 @@
 
   /* ---------- 模式2:云端大模型 ---------- */
   function buildContext() {
-    const ctx = window.Ctx;
     let sys = '你是一名面向中国本科生的学科助教,擅长系统解剖学/地理/天文/化学/生物教学。请用简体中文、条理清晰地回答,重点突出考点,适当使用序号列表。回答控制在300字以内,除非用户要求更详细。';
     try {
+      const ctx = window.Ctx;
       if (ctx) {
         sys += `\n当前用户正在查看的3D模型:「${ctx.aiContext.model}」。`;
         if (ctx.aiContext.part) sys += `\n用户当前选中的结构:「${ctx.aiContext.part.term}」。相关资料:${ctx.aiContext.part.kb || '(无)'}`;
@@ -139,7 +215,7 @@
       const j = await r.json();
       const txt = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content || '(空回复)';
       typing.innerHTML = mdLite(txt);
-      history.push({ role: 'assistant', content: txt });
+      addMsg('assistant', txt);
     } catch (err) {
       typing.innerHTML = `❌ 调用失败:<b>${esc(String(err.message || err))}</b><br>
         常见原因:① Key/地址/模型名不对;② 该服务商不允许浏览器跨域直连(换智谱或开代理);③ 余额不足。<br>
@@ -154,6 +230,42 @@
       .replace(/^\s*[-*] (.+)$/gm, '<li>$1</li>')
       .replace(/(<li>[\s\S]*?<\/li>)(?!\s*<li>)/g, '<ul>$1</ul>')
       .replace(/\n/g, '<br>');
+  }
+
+  /* ---------- 历史会话弹窗 ---------- */
+  function ensureHistModal() {
+    if (histModal) return;
+    histModal = document.createElement('div');
+    histModal.className = 'modal-mask';
+    histModal.innerHTML = `
+      <div class="modal">
+        <h3>🗂 我的聊天记录</h3>
+        <div id="histList" style="max-height:52vh;overflow-y:auto"></div>
+        <p class="tip">记录保存在本机浏览器、按账号隔离;换设备可在账号面板导出 JSON 迁移。</p>
+        <div class="modal-actions"><button class="btn-ghost" id="histClose">关闭</button></div>
+      </div>`;
+    document.body.appendChild(histModal);
+    histModal.addEventListener('click', e => { if (e.target === histModal) histModal.classList.remove('show'); });
+    $('histClose').onclick = () => histModal.classList.remove('show');
+  }
+  function renderHistList() {
+    if (!histModal) return;
+    const list = $('histList');
+    const items = sessions.slice().sort((a, b) => (b.created || 0) - (a.created || 0));
+    if (!items.length) { list.innerHTML = '<p style="color:var(--txt-dim);font-size:13px">还没有聊天记录,去问 AI 第一句话吧。</p>'; return; }
+    list.innerHTML = items.map(s => `
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px solid var(--line)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.title || '未命名对话')}</div>
+          <div style="font-size:11.5px;color:var(--txt-dim)">${new Date(s.created || Date.now()).toLocaleString('zh-CN')} · ${s.msgs.length} 条</div>
+        </div>
+        <button class="btn-ghost" data-load="${s.id}" style="padding:5px 12px;font-size:12.5px">打开</button>
+        <button class="btn-ghost" data-del="${s.id}" style="padding:5px 10px;font-size:12.5px;color:var(--err)">删</button>
+      </div>`).join('');
+    list.querySelectorAll('[data-load]').forEach(b => b.onclick = () => {
+      loadSession(b.dataset.load); histModal.classList.remove('show'); toggle(true);
+    });
+    list.querySelectorAll('[data-del]').forEach(b => b.onclick = () => deleteSession(b.dataset.del));
   }
 
   /* ---------- 设置 ---------- */
@@ -177,7 +289,7 @@
     const act = document.querySelector('#presetRow .preset-chip.active');
     cfg.preset = act ? act.dataset.p : (cfg.url && cfg.key ? 'custom' : 'offline');
     if (cfg.preset !== 'offline' && (!cfg.url || !cfg.key)) cfg.preset = 'offline';
-    try { localStorage.setItem(LS_KEY, JSON.stringify(cfg)); } catch (e) { }
+    saveCfg();
     $('settingsModal').classList.remove('show');
     refreshMode();
     window.Ctx && Ctx.toast(isCloud() ? '已启用云端大模型 🤖' : '使用内置知识库模式');
@@ -196,5 +308,38 @@
       else { res.textContent = '❌ HTTP ' + r.status + ':' + (await r.text()).slice(0, 120); res.style.color = 'var(--err)'; }
     } catch (e) { res.textContent = '❌ ' + esc(String(e.message || e)).slice(0, 120); res.style.color = 'var(--err)'; }
   };
+
+  /* ---------- 头部按钮:新对话 / 历史 ---------- */
+  (function injectHeadButtons() {
+    const head = document.querySelector('.ai-head');
+    if (!head) return;
+    const btnNew = document.createElement('button');
+    btnNew.className = 'icon-btn'; btnNew.title = '新对话(旧对话自动保存)';
+    btnNew.textContent = '✚';
+    btnNew.onclick = () => newConversation();
+    const btnHist = document.createElement('button');
+    btnHist.className = 'icon-btn'; btnHist.title = '历史聊天记录';
+    btnHist.textContent = '🗂';
+    btnHist.onclick = () => { ensureHistModal(); renderHistList(); histModal.classList.add('show'); };
+    head.insertBefore(btnHist, $('aiSettingsBtn'));
+    head.insertBefore(btnNew, btnHist);
+  })();
+
+  /* ---------- 账号切换响应 ---------- */
+  window.addEventListener('auth-changed', () => {
+    loadCfg(); loadSessions();
+    curSession = null;
+    msgs.innerHTML = '';
+    history = [];
+    const u = (window.Auth && Auth.current()) || 'guest';
+    bubble('bot', u === 'guest'
+      ? '当前以<b>游客</b>身份聊天(记录保存在本机"游客"名下)。点右上角 👤 可注册/登录,记录将归属你的账号。'
+      : `欢迎,${esc(u)} 👋 本账号的聊天记录已就绪(${sessions.length} 个历史会话),右上角 🗂 可查看。`);
+    refreshMode();
+  });
+
+  /* ---------- 初始化 ---------- */
+  loadCfg();
+  loadSessions();
   refreshMode();
 })();
