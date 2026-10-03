@@ -15,16 +15,26 @@ window.Modules = window.Modules || {};
   }
   const CORTEX = y => Math.max(0.022, radiusAt(y) * 0.16);       // 骨密质厚度
 
+  /* 热点位置全部按 radiusAt() 精确落位:
+     - "剖面"类(x=-0.008)贴在切面上,能明确指认骨密质带/髓腔/骨松质区
+     - 表面类用 r=radiusAt(y) 算出圆周坐标,不再悬空 */
+  const CUTX = -0.012;                      // 切面稍前(从 -x 观察切面)
+  const onCut = (y, z) => [CUTX, y, z];
+  const onSurf = (y, angDeg, off = 0.008) => {  // 表面:角度从 +z 起量,x=cos 分量
+    const r = radiusAt(y) + off;
+    const a = angDeg * Math.PI / 180;
+    return [r * Math.cos(a), y, r * Math.sin(a)];
+  };
   const HS = [
-    { term: '关节软骨', en: 'Articular cartilage', pos: [0, 1.36, 0.12], desc: '覆盖在骨关节面上的透明软骨,表面光滑,能减少摩擦、缓冲震荡。关节软骨没有血管,靠滑液营养,损伤后极难自愈。', point: '骨的构造考点:关节软骨属于透明软骨,不参与骨的生长(骺软骨才负责长长)。' },
-    { term: '骨松质', en: 'Spongy bone', pos: [0.12, 1.02, 0.2], desc: '由针状或片状的骨小梁交织而成,呈海绵状,分布在长骨两端(骨骺)、扁骨板障等处。骨小梁排列方向与受力线一致,既轻又坚固。', point: '骨松质由骨小梁构成,红骨髓位于骨松质间隙内(髂骨、胸骨、椎骨等处终生保留红骨髓,是骨髓穿刺常用部位)。' },
-    { term: '骺线', en: 'Epiphyseal line', pos: [0, 0.9, 0.28], desc: '成年后骺软骨骨化遗留的致密线痕,标志骨的长度增长停止。儿童时期此处为骺软骨(骺板),不断骨化使骨变长。', point: '考点:骺软骨保留→骨仍能长长;骺软骨完全骨化形成骺线→骨不能再长长。X光片上骺线存在与否可用于判断年龄。' },
-    { term: '骨密质', en: 'Compact bone', pos: [0.02, 0.2, 0.3], desc: '质地致密坚硬,分布于长骨骨干和骨骺外层,抗压抗扭曲能力强,由规则排列的骨板(哈弗斯系统)构成。', point: '骨密质在骨干最厚,是长骨承重的主体结构;颅盖骨的密质分为内板和外板。' },
-    { term: '骨髓腔', en: 'Medullary cavity', pos: [0, 0.1, 0.02], desc: '骨干中空的腔隙,内充填骨髓。骨髓腔的存在使骨在保证强度的同时大大减轻重量。', point: '胎儿及幼儿的骨髓腔内全是红骨髓,5岁以后逐渐被黄骨髓(脂肪组织)代替。' },
-    { term: '黄骨髓', en: 'Yellow marrow', pos: [0, -0.35, 0.02], desc: '脂肪组织,失去造血能力,但大出血时可部分转化为红骨髓恢复造血。', point: '考点:黄骨髓位于成人长骨骨髓腔,成分为脂肪,正常时无造血功能。' },
-    { term: '红骨髓', en: 'Red marrow', pos: [0.1, 1.18, 0.1], desc: '造血组织,位于骨松质间隙(椎骨、髂骨、肋骨、胸骨、颅骨等),终生保持造血功能。', point: '考点:红骨髓是造血器官(红细胞、白细胞、血小板都由它产生)。临床骨髓穿刺常选髂前/髂后上棘或胸骨。' },
-    { term: '骨膜', en: 'Periosteum', pos: [-0.28, -0.1, 0.18], desc: '除关节面外,骨表面覆有的致密结缔组织膜,分外层(纤维层,固定保护)与内层(成骨层,含成骨细胞与破骨细胞)。', point: '考点:骨膜内层参与骨的增粗与骨折修复——骨膜保留则骨可再生;骨膜感觉神经丰富,骨折时剧痛。' },
-    { term: '滋养孔', en: 'Nutrient foramen', pos: [0.16, -0.55, 0.06], desc: '骨干表面的细小孔道,滋养血管由此进入骨内,营养骨密质与骨髓。', point: '长骨滋养孔多位于骨干中段,血流方向"向骺端走行"——骨折若断离滋养动脉可致骨坏死(如股骨颈骨折)。' }
+    { term: '关节软骨', en: 'Articular cartilage', pos: onSurf(1.31, 40, 0.022), desc: '覆盖在骨关节面上的透明软骨(图中两端淡蓝色壳),表面光滑,能减少摩擦、缓冲震荡。关节软骨没有血管,靠滑液营养,损伤后极难自愈。', point: '骨的构造考点:关节软骨属于透明软骨,不参与骨的生长(骺软骨才负责长长)。' },
+    { term: '骨松质', en: 'Spongy bone', pos: onCut(1.15, 0.10), desc: '由针状或片状的骨小梁交织而成,呈海绵状(切面两端网格纹区域),分布在长骨两端(骨骺)、扁骨板障等处。骨小梁排列方向与受力线一致,既轻又坚固。', point: '骨松质由骨小梁构成,红骨髓位于骨松质间隙内(髂骨、胸骨、椎骨等处终生保留红骨髓,是骨髓穿刺常用部位)。' },
+    { term: '骺线', en: 'Epiphyseal line', pos: onCut(0.9, 0.12), desc: '成年后骺软骨骨化遗留的致密线痕(切面上骨干与骨骺交界处的深色横线),标志骨的长度增长停止。儿童时期此处为骺软骨(骺板),不断骨化使骨变长。', point: '考点:骺软骨保留→骨仍能长长;骺软骨完全骨化形成骺线→骨不能再长长。X光片上骺线存在与否可用于判断年龄。' },
+    { term: '骨密质', en: 'Compact bone', pos: onCut(0.2, 0.17), desc: '切面上骨干外圈的浅色致密带,质地坚硬,分布于长骨骨干和骨骺外层,抗压抗扭曲能力强,由规则排列的骨板(哈弗斯系统)构成。', point: '骨密质在骨干最厚,是长骨承重的主体结构;颅盖骨的密质分为内板和外板。' },
+    { term: '骨髓腔', en: 'Medullary cavity', pos: onCut(0.1, 0.015), desc: '骨干中空腔隙(切面中央的黄色区),内充填骨髓。骨髓腔的存在使骨在保证强度的同时大大减轻重量。', point: '胎儿及幼儿的骨髓腔内全是红骨髓,5岁以后逐渐被黄骨髓(脂肪组织)代替。' },
+    { term: '黄骨髓', en: 'Yellow marrow', pos: onCut(-0.35, 0.02), desc: '充填于成人骨髓腔内的脂肪组织(切面骨干中央黄色部分),失去造血能力,但大出血时可部分转化为红骨髓恢复造血。', point: '考点:黄骨髓位于成人长骨骨髓腔,成分为脂肪,正常时无造血功能。' },
+    { term: '红骨髓', en: 'Red marrow', pos: onCut(-1.15, 0.08), desc: '造血组织,位于骨松质间隙(切面两端骨松质网格的红色底),椎骨、髂骨、肋骨、胸骨等处终生保留。', point: '考点:红骨髓是造血器官(红细胞、白细胞、血小板都由它产生)。临床骨髓穿刺常选髂前/髂后上棘或胸骨。' },
+    { term: '骨膜', en: 'Periosteum', pos: onSurf(-0.1, 35, 0.018), desc: '除关节面外覆于骨表面的半透明膜(图中骨干外侧的浅粉色薄套),分外层(纤维层,固定保护)与内层(成骨层,含成骨细胞与破骨细胞)。', point: '考点:骨膜内层参与骨的增粗与骨折修复——骨膜保留则骨可再生;骨膜感觉神经丰富,骨折时剧痛。' },
+    { term: '滋养孔', en: 'Nutrient foramen', pos: onSurf(-0.55, 17, 0.002), desc: '骨干表面的细小孔道(骨干上的深色小点),滋养血管由此进入骨内,营养骨密质与骨髓。', point: '长骨滋养孔多位于骨干中段,血流方向"向骺端走行"——骨折若断离滋养动脉可致骨坏死(如股骨颈骨折)。' }
   ];
 
   Modules['bone-structure'] = async function (ctx) {
@@ -86,12 +96,15 @@ window.Modules = window.Modules || {};
     });
 
     /* 滋养孔(骨干表面小暗点) */
+    const nfAng = 0.3;
     const nf = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 12), new THREE.MeshStandardMaterial({ color: 0x3a2f22 }));
-    nf.position.set(radiusAt(-0.55) * Math.cos(0.3), -0.55, radiusAt(-0.55) * Math.sin(0.3) + 0.0);
+    nf.position.set(radiusAt(-0.55) * Math.cos(nfAng), -0.55, radiusAt(-0.55) * Math.sin(nfAng));
     nf.scale.set(1, 0.6, 0.6);
     group.add(nf);
 
     ctx.root.add(group);
+    // 计入拾取列表:悬停提示 + 热点指引线的射线目标
+    [boneMesh, cut, peri].forEach(m => ctx.pickables.push(m));
 
     /* 剖面贴图 */
     function drawCutFace() {
@@ -153,7 +166,7 @@ window.Modules = window.Modules || {};
     }
 
     /* 热点与交互 */
-    ctx.setHotspots(HS.map(h => ({ term: h.term, en: h.en, pos: h.pos, viewDir: [0.35, 0.2, 1], data: { desc: h.desc, point: h.point } })));
+    ctx.setHotspots(HS.map(h => ({ term: h.term, en: h.en, pos: h.pos, viewDir: [-1, 0.28, 0.5], data: { desc: h.desc, point: h.point } })));
     ctx.onHotspotSelect = hs => {
       ctx.setInfo({
         title: hs.term, latin: hs.en, cat: ['骨学总论', '模式图'],
@@ -185,7 +198,7 @@ window.Modules = window.Modules || {};
     }
     // 自测也用热点
     ctx.quizAnswer = null;
-    ctx.defaultDir = [0.55, 0.25, 1]; ctx.defaultDist = 4.2; ctx.resetView();
+    ctx.defaultDir = [-1, 0.22, 0.42]; ctx.defaultDist = 6.4; ctx.resetView();
     ctx.setInfo(null); ctx.hideLoading(); ctx.showInfoPanel(false);
     ctx.aiContext = { model: '骨的构造(模式图)', part: null };
   };

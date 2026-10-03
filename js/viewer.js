@@ -141,6 +141,44 @@
       Ctx.hotspotGroup.add(spr);
       Ctx.hotspots.push(hs); Ctx.sprites.push(spr);
     });
+    // 指引线:圆点 → 结构表面(延迟到模型就绪后绘制)
+    Ctx.buildHotspotLines();
+  };
+
+  /* 从每个标注圆点向模型表面打一条短指引线 + 表面锚点球:
+     转到任何角度都能看清"这个编号指的是骨面上哪个位置" */
+  Ctx.buildHotspotLines = () => {
+    Ctx.hotspotGroup.children.filter(o => o.isLine || o.isMesh).forEach(l => Ctx.hotspotGroup.remove(l));
+    if (!Ctx.pickables.length) return;
+    const box = new THREE.Box3().setFromObject(Ctx.root);
+    if (box.isEmpty()) return;
+    const center = box.getCenter(new THREE.Vector3());
+    const ray = new THREE.Raycaster();
+    const lineMat = new THREE.LineBasicMaterial({ color: 0xffb454, transparent: true, opacity: 0.85, depthTest: false });
+    const dotMat = new THREE.MeshBasicMaterial({ color: 0xffb454, depthTest: false });
+    Ctx.hotspots.forEach(hs => {
+      const from = hs.sprite.position.clone();
+      const dir = center.clone().sub(from);
+      const dist = dir.length();
+      if (dist < 0.02) return;
+      dir.normalize();
+      ray.set(from, dir);
+      ray.far = dist;
+      const hits = ray.intersectObjects(Ctx.pickables, false);
+      let to;
+      if (hits.length) to = hits[0].point.clone();
+      else to = from.clone().addScaledVector(dir, Math.min(0.14, dist * 0.4));  // 没打中就画一小段
+      if (from.distanceTo(to) < 0.012) return;                                   // 几乎贴面,不用线
+      const geo = new THREE.BufferGeometry().setFromPoints([from, to]);
+      const line = new THREE.Line(geo, lineMat);
+      line.renderOrder = 9;
+      Ctx.hotspotGroup.add(line);
+      // 表面锚点小球:标明真正的附着位置
+      const anchor = new THREE.Mesh(new THREE.SphereGeometry(0.0075, 10, 10), dotMat);
+      anchor.position.copy(to);
+      anchor.renderOrder = 9;
+      Ctx.hotspotGroup.add(anchor);
+    });
   };
   Ctx.showLabels = show => { Ctx.labelsOn = show; Ctx.hotspotGroup.visible = show; refreshPartLabel(); };
 
